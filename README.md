@@ -1,4 +1,4 @@
-<img src = "https://github.com/netyouli/WHC_Scan/blob/master/Logo/whc_scanLogo.png" width = "60" height = "60">
+<div align=center><img src = "https://github.com/netyouli/WHC_Scan/blob/master/Logo/whc_scanLogo.png" width = "70" height = "60"/></div></br>
 # WHC_Scan v1.0.0 
 简介
 ==============
