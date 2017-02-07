@@ -250,6 +250,7 @@
 				DEVELOPMENT_TEAM = 7F5YZXGNJ3;
 				INFOPLIST_FILE = WHC_ScanUnusedClass/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "WHC.WHC-ScanUnusedClass";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
@@ -264,6 +265,7 @@
 				DEVELOPMENT_TEAM = 7F5YZXGNJ3;
 				INFOPLIST_FILE = WHC_ScanUnusedClass/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "WHC.WHC-ScanUnusedClass";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
@@ -289,6 +291,7 @@
 				FE13BC6E1E2628A900F9C90B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
