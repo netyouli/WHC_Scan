@@ -2,9 +2,9 @@
 //  ViewController.swift
 //  WHC_ScanUnusedClass
 //
-//  Created by WHC on 16/7/1.
+//  Created by WHC on 17/1/11.
 //  Copyright © 2016年 WHC. All rights reserved.
-//  Github <https://github.com/netyouli/WHC_ScanUnreferenceImageTool>
+//  Github <https://github.com/netyouli/WHC_Scan>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
