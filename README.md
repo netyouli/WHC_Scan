@@ -1,4 +1,5 @@
-# WHC_Scan v1.0.0
+<img src = "https://github.com/netyouli/WHC_Scan/blob/master/Logo/whc_scanLogo.png" width = "60" height = "60">
+# WHC_Scan v1.0.0 
 简介
 ==============
 - **应用**: Mac工具(扫描项目里没有使用的类)
