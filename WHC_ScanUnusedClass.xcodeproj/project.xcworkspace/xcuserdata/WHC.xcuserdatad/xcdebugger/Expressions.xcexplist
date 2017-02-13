@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "specialized ViewController.(startCalculateAllClass([String]!, path : String!) -&gt; ()).(closure #1).(closure #1):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "subArray">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

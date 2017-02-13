@@ -62,6 +62,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var carefullyRadio: NSButton!
     
     private lazy var filePathArray = [String]()
+    private lazy var superClassArray = [String]()
     private lazy var classNameArray = [String]()
     
     private lazy var noReferenceImageNameArray = [String]()
@@ -155,6 +156,7 @@ class ViewController: NSViewController {
         processBar.doubleValue = 0;
         if directoryText.stringValue.characters.count > 0 {
             filePathArray.removeAll()
+            superClassArray.removeAll()
             classNameArray.removeAll()
             processBar.doubleValue = 0;
             progressLabel.stringValue = "扫描之前，需要计算统计项目所有的类，马上开始别着急请耐心等待一小会........^_^"
@@ -274,7 +276,15 @@ class ViewController: NSViewController {
                                 if !firstLineContent.contains("(") && !firstLineContent.contains("=") && !firstLineContent.contains("?") && !firstLineContent.contains("!") && !firstLineContent.contains(")") {
                                     let colonRange = (firstLineContent as NSString).range(of: ":")
                                     let parenthesesRange = (firstLineContent as NSString).range(of: "{")
-                                    if colonRange.location != NSNotFound {
+                                    let arrowParenthesesRange = (firstLineContent as NSString).range(of: "<")
+                                    if arrowParenthesesRange.location != NSNotFound && colonRange.location != NSNotFound {
+                                        let className = (firstLineContent as NSString).substring(to: arrowParenthesesRange.location)
+                                        if !classNames.contains(className) && !classNameArray.contains(className) {
+                                            if className.characters.count > 0 {
+                                                classNames.append(className)
+                                            }
+                                        }
+                                    }else if colonRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: colonRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
                                             if className.characters.count > 0 {
@@ -292,7 +302,8 @@ class ViewController: NSViewController {
                                         if firstLineContent.characters.count > 0 {
                                             let fristChar = firstLineContent.substring(to: firstLineContent.startIndex)
                                             if fristChar == fristChar.uppercased() {
-                                                if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) {
+                                                let subPartArray = afterContent.components(separatedBy: " ")
+                                                if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) && subPartArray.count == 1 {
                                                     if firstLineContent.characters.count > 0 {
                                                         classNames.append(firstLineContent)
                                                     }
@@ -376,7 +387,8 @@ class ViewController: NSViewController {
                                         if firstLineContent.characters.count > 0 {
                                             let fristChar = firstLineContent.substring(to: firstLineContent.startIndex)
                                             if fristChar == fristChar.uppercased() {
-                                                if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) {
+                                                let subPartArray = afterContent.components(separatedBy: " ")
+                                                if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) && subPartArray.count == 1 {
                                                     if firstLineContent.characters.count > 0 {
                                                         classNames.append(firstLineContent)
                                                     }
@@ -421,8 +433,36 @@ class ViewController: NSViewController {
                                 if fileName.hasSuffix(".swift") || fileName.hasSuffix(".m") {
                                     filePathArray.append(pathName)
                                     classNameArray.append(contentsOf: analysisEngineClassName(path: pathName, file: fileName))
+                                }else if fileName.hasSuffix(".h") {
+                                    autoreleasepool {
+                                        let contentData = try! Data(contentsOf: URL(fileURLWithPath: pathName), options: NSData.ReadingOptions.mappedIfSafe);
+                                        var fileContent = NSString(data: contentData, encoding: String.Encoding.utf8.rawValue)
+                                        if fileContent != nil {
+                                            var range = fileContent!.range(of: "@interface")
+                                            while range.location != NSNotFound {
+                                                let afterContent = fileContent!.substring(from: range.length + range.location)
+                                                let returnRange = (afterContent as NSString).range(of: "\n")
+                                                if returnRange.location != NSNotFound {
+                                                    let firstLineContent = (((afterContent as NSString).substring(to: returnRange.location) as NSString).replacingOccurrences(of: " ", with: "") as NSString).replacingOccurrences(of: "\r", with: "")
+                                                    let subArray = firstLineContent.components(separatedBy: ":")
+                                                    if subArray.count > 1 {
+                                                        let superClass = subArray[1]
+                                                        let tempSuperClassArray = superClass.components(separatedBy: "<")
+                                                        let handleSuperClassName = tempSuperClassArray.first!.replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "")
+                                                        if !superClassArray.contains(handleSuperClassName) {
+                                                            superClassArray.append(handleSuperClassName)
+                                                        }
+                                                    }
+                                                    fileContent = (afterContent as NSString).substring(from: returnRange.location + returnRange.length) as NSString?
+                                                    range = fileContent!.range(of: "@interface")
+                                                }else {
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                        }
+                            }
                     }
                 }
             }
@@ -523,8 +563,8 @@ class ViewController: NSViewController {
             }
             var isReference = false
             for filePath in filePathArray {
-                let bookData = try! Data(contentsOf: URL(fileURLWithPath: filePath), options: NSData.ReadingOptions.mappedIfSafe);
-                let fileContent = NSString(data: bookData, encoding: String.Encoding.utf8.rawValue)
+                let contentData = try! Data(contentsOf: URL(fileURLWithPath: filePath), options: NSData.ReadingOptions.mappedIfSafe);
+                let fileContent = NSString(data: contentData, encoding: String.Encoding.utf8.rawValue)
                 if fileContent != nil {
                     var handleFileContent = ""
                     switch scanLevel {
@@ -560,12 +600,15 @@ class ViewController: NSViewController {
                         }
                     case .iOS:
                         if filePath.hasSuffix(".swift") {
-                            if handleFileContent.contains(className + ".") || handleFileContent.contains(className + "(") || handleFileContent.contains(":" + className) {
+                            if handleFileContent.contains(className + ".") || handleFileContent.contains(className + "(") || handleFileContent.contains(":" + className) || handleFileContent.contains("as!" + className) || handleFileContent.contains("as?" + className) || handleFileContent.contains("[" + className + "]()") ||
+                                handleFileContent.contains(":[" + className + "]") ||
+                                handleFileContent.contains("<" + className + ">()") {
                                 isReference = true
                                 break
                             }
                         }else if filePath.hasSuffix(".m") {
-                            if handleFileContent.contains("[" + className) || handleFileContent.contains(className + ".new") || handleFileContent.contains(className + "*") {
+                            if handleFileContent.contains("[" + className) || handleFileContent.contains(className + ".new") || handleFileContent.contains(className + "*") ||
+                                handleFileContent.contains("<" + className + ">") || superClassArray.contains(className) {
                                 isReference = true
                                 break
                             }
