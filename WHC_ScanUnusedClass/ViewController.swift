@@ -113,18 +113,18 @@ class ViewController: NSViewController {
     }
     
     @IBAction func clickCheckUpdate(_ sender: NSButton) {
-        NSWorkspace.shared().open(URL(string: "https://github.com/netyouli/WHC_ScanUnreferenceImageTool")!)
+        NSWorkspace.shared.open(URL(string: "https://github.com/netyouli/WHC_ScanUnreferenceImageTool")!)
     }
     
     @IBAction func clickAbout(_ sender: NSButton) {
-        NSWorkspace.shared().open(URL(string: "https://github.com/netyouli/")!)
+        NSWorkspace.shared.open(URL(string: "https://github.com/netyouli/")!)
     }
     
     @IBAction func clickOpenDirectory(_ sender: NSButton) {
         let openPanel = NSOpenPanel()
         openPanel.canChooseFiles = false
         openPanel.canChooseDirectories = true
-        if openPanel.runModal() == NSModalResponseOK {
+        if openPanel.runModal() == NSApplication.ModalResponse.OK {
             directoryText.stringValue = (openPanel.directoryURL?.path)!
         }
     }
@@ -137,15 +137,15 @@ class ViewController: NSViewController {
         stopScan = !stopScan
         sender.title = stopScan ? "停止扫描" : "开始扫描"
         if !stopScan {return}
-        if fastRadio.state == 1 {scanLevel = .fast}
-        else if normalRadio.state == 1 {scanLevel = .normal}
+        if fastRadio.state.rawValue == 1 {scanLevel = .fast}
+        else if normalRadio.state.rawValue == 1 {scanLevel = .normal}
         else {scanLevel = .carefully}
-        if (iOSRadio.state == 1) {
+        if (iOSRadio.state.rawValue == 1) {
             scanProjectType = .iOS
         }else {
             scanProjectType = .android
         }
-        if threadCountText.stringValue.characters.count > 0 {
+        if threadCountText.stringValue.count > 0 {
             threadCount = (threadCountText.stringValue as NSString).integerValue
         }
         threadCount = max(1, threadCount)
@@ -154,7 +154,7 @@ class ViewController: NSViewController {
         setResultContent(content: "")
         setNotUseResultContent(content: "")
         processBar.doubleValue = 0;
-        if directoryText.stringValue.characters.count > 0 {
+        if directoryText.stringValue.count > 0 {
             filePathArray.removeAll()
             superClassArray.removeAll()
             classNameArray.removeAll()
@@ -197,16 +197,16 @@ class ViewController: NSViewController {
                     alert.addButton(withTitle: "保存")
                     alert.addButton(withTitle: "取消")
                     alert.beginSheetModal(for: self.view.window!, completionHandler: { (modalResponse) in
-                        if modalResponse == 1000 {
+                        if modalResponse.rawValue == 1000 {
                             let savaPanel = NSSavePanel()
                             savaPanel.message = "Choose the path to save the document"
                             savaPanel.allowedFileTypes = ["txt"]
                             savaPanel.allowsOtherFileTypes = false
                             savaPanel.canCreateDirectories = true
                             savaPanel.beginSheetModal(for: self.view.window!, completionHandler: {[unowned self] (code) in
-                                if code == 1 {
+                                if code.rawValue == 1 {
                                     do {
-                                        let originTxt = self.notUseClassResultContentView.string == nil ? "" : self.notUseClassResultContentView.string!
+                                        let originTxt = self.notUseClassResultContentView.string.count == 0 ? "" : self.notUseClassResultContentView.string
                                         try originTxt.write(toFile: savaPanel.url!.path, atomically: true, encoding: String.Encoding(rawValue: String.Encoding.utf8.rawValue))
                                     }catch {
                                         print("写文件异常")
@@ -280,31 +280,31 @@ class ViewController: NSViewController {
                                     if arrowParenthesesRange.location != NSNotFound && colonRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: arrowParenthesesRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else if colonRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: colonRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else if parenthesesRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: parenthesesRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else {
-                                        if firstLineContent.characters.count > 0 {
-                                            let fristChar = firstLineContent.substring(to: firstLineContent.startIndex)
+                                        if firstLineContent.count > 0 {
+                                            let fristChar = String(firstLineContent[..<firstLineContent.startIndex])
                                             if fristChar == fristChar.uppercased() {
                                                 let subPartArray = afterContent.components(separatedBy: " ")
                                                 if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) && subPartArray.count == 1 {
-                                                    if firstLineContent.characters.count > 0 {
+                                                    if firstLineContent.count > 0 {
                                                         classNames.append(firstLineContent)
                                                     }
                                                 }
@@ -325,20 +325,20 @@ class ViewController: NSViewController {
                             let returnRange = (afterContent as NSString).range(of: "\n")
                             if returnRange.location != NSNotFound {
                                 let firstLineContent = ((afterContent as NSString).substring(to: returnRange.location) as NSString).replacingOccurrences(of: " ", with: "")
-                                if firstLineContent.characters.count > 0 {
+                                if firstLineContent.count > 0 {
                                     let parenthesesRange = (firstLineContent as NSString).range(of: "(")
                                     if parenthesesRange.location == NSNotFound {
                                         let bracesRange = (firstLineContent as NSString).range(of: "{")
                                         if bracesRange.location != NSNotFound {
                                             let className = (firstLineContent as NSString).substring(to: bracesRange.location)
                                             if !classNames.contains(className) && !classNameArray.contains(className) {
-                                                if className.characters.count > 0 {
+                                                if className.count > 0 {
                                                     classNames.append(className)
                                                 }
                                             }
                                         }else {
                                             if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) {
-                                                if firstLineContent.characters.count > 0 {
+                                                if firstLineContent.count > 0 {
                                                     classNames.append(firstLineContent)
                                                 }
                                             }
@@ -365,31 +365,31 @@ class ViewController: NSViewController {
                                     if inheritRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: inheritRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else if implementRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: implementRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else if parenthesesRange.location != NSNotFound {
                                         let className = (firstLineContent as NSString).substring(to: parenthesesRange.location)
                                         if !classNames.contains(className) && !classNameArray.contains(className) {
-                                            if className.characters.count > 0 {
+                                            if className.count > 0 {
                                                 classNames.append(className)
                                             }
                                         }
                                     }else {
-                                        if firstLineContent.characters.count > 0 {
-                                            let fristChar = firstLineContent.substring(to: firstLineContent.startIndex)
+                                        if firstLineContent.count > 0 {
+                                            let fristChar = String(firstLineContent[..<firstLineContent.startIndex])
                                             if fristChar == fristChar.uppercased() {
                                                 let subPartArray = afterContent.components(separatedBy: " ")
                                                 if !classNames.contains(firstLineContent) && !classNameArray.contains(firstLineContent) && subPartArray.count == 1 {
-                                                    if firstLineContent.characters.count > 0 {
+                                                    if firstLineContent.count > 0 {
                                                         classNames.append(firstLineContent)
                                                     }
                                                 }
@@ -490,7 +490,7 @@ class ViewController: NSViewController {
                 annotationEndRange.location != NSNotFound &&
                 checkRangeOK(start: annotationStartRange, end: annotationEndRange) {
                 var annotationContent = handleFileContent.substring(with: NSMakeRange(annotationStartRange.location + annotationStartRange.length, max(0, annotationEndRange.location - (annotationStartRange.location + annotationStartRange.length))))
-                if annotationContent.characters.count == 0 {
+                if annotationContent.count == 0 {
                     annotationEndRange = handleFileContent.range(of: "*/", options: .literal, range: NSMakeRange(annotationEndRange.length + annotationEndRange.location, max(0, handleFileContent.length - (annotationEndRange.length + annotationEndRange.location))))
                     if annotationEndRange.location != NSNotFound {
                         annotationContent = handleFileContent.substring(with: NSMakeRange(annotationStartRange.location + annotationStartRange.length, max(0, annotationEndRange.location - (annotationStartRange.location + annotationStartRange.length))))
@@ -515,7 +515,7 @@ class ViewController: NSViewController {
                     if annotationStartRange.location != NSNotFound &&
                         annotationEndRange.location != NSNotFound && checkRangeOK(start: annotationStartRange, end: annotationEndRange) {
                         var annotationContent = handleFileContent.substring(with: NSMakeRange(annotationStartRange.location + annotationStartRange.length, max(0, annotationEndRange.location - (annotationStartRange.location + annotationStartRange.length))))
-                        if annotationContent.characters.count == 0 {
+                        if annotationContent.count == 0 {
                             annotationEndRange = handleFileContent.range(of: "*/", options: .literal, range: NSMakeRange(annotationEndRange.length + annotationEndRange.location, max(0, handleFileContent.length - (annotationEndRange.length + annotationEndRange.location))))
                             if annotationEndRange.location != NSNotFound {
                                 annotationContent = handleFileContent.substring(with: NSMakeRange(annotationStartRange.location + annotationStartRange.length, max(0, annotationEndRange.location - (annotationStartRange.location + annotationStartRange.length))))
@@ -556,7 +556,7 @@ class ViewController: NSViewController {
     fileprivate func execScan(className: String) {
         autoreleasepool {
             DispatchQueue.main.sync {
-                let originTxt = self.resultContentView.string == nil ? "" : self.resultContentView.string!
+                let originTxt = self.resultContentView.string.count == 0 ? "" : self.resultContentView.string
                 let allClassName = ">>>>> " + className + "\n"
                 self.setResultContent(content: originTxt + allClassName)
                 self.progressLabel.stringValue = className
@@ -573,7 +573,7 @@ class ViewController: NSViewController {
                         case .normal:
                             handleFileContent = fileContent!.replacingOccurrences(of: " ", with: "")
                         case .fast:
-                            handleFileContent = fileContent as! String
+                            handleFileContent = fileContent! as String
                     }
                     switch scanProjectType {
                     case .android:
@@ -620,7 +620,7 @@ class ViewController: NSViewController {
             if !isReference {
                 DispatchQueue.main.sync(execute: {
                     self.notUseClassCount += 1
-                    let originTxt = self.notUseClassResultContentView.string == nil ? "" : self.notUseClassResultContentView.string!
+                    let originTxt = self.notUseClassResultContentView.string.count == 0 ? "" : self.notUseClassResultContentView.string
                     self.setNotUseResultContent(content: originTxt + ">>>>> " + className + "\n")
                     self.notUseClassCountLabel.stringValue = "项目没使用的类: 总计\(self.notUseClassCount)个"
                 })
